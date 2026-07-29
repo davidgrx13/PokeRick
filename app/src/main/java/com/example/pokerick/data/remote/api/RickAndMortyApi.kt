@@ -23,4 +23,9 @@ interface RickAndMortyApi {
     suspend fun getEpisodes(
         @Path("ids") episodeIds: String
     ): List<EpisodeDto>
+
+    @GET("episode/{id}")
+    suspend fun getSingleEpisode(
+        @Path("id") episodeId: String
+    ): EpisodeDto // si solo aparece en un episodio, el REST no devuelve una lista
 }
