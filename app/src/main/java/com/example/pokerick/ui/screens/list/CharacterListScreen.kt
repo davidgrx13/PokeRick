@@ -9,9 +9,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -50,94 +55,114 @@ fun CharacterListScreen(
             )
         }
     ) { paddingValues ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            when {
-                // estado de carga inicial
-                state.isLoading && state.characters.isEmpty() -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
 
-                // estado de error inicial
-                state.error != null && state.characters.isEmpty() -> {
-                    Column(
-                        modifier = Modifier.align(Alignment.Center),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = state.error ?: "Error",
-                            color = ErrorColor,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(16.dp)
+            // barra de búsqueda
+            OutlinedTextField(
+                value = state.searchQuery,
+                onValueChange = { viewModel.onSearchQueryChanged(it) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                placeholder = { Text("Buscar personaje...") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = "Buscar") },
+                singleLine = true,
+                shape = RoundedCornerShape(24.dp)
+            )
+
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                when {
+                    // estado de carga inicial
+                    state.isLoading && state.characters.isEmpty() -> {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center)
                         )
-                        Button(onClick = {}) {
-                            Text("Reintentar")
+                    }
+
+                    // estado de error inicial
+                    state.error != null && state.characters.isEmpty() -> {
+                        Column(
+                            modifier = Modifier.align(Alignment.Center),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = state.error ?: "Error",
+                                color = ErrorColor,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(16.dp)
+                            )
+                            Button(
+                                onClick = { viewModel.loadInitialCharacters() }
+                            ) {
+                                Text("Reintentar")
+                            }
                         }
                     }
-                }
 
-                // lista con datos
-                else -> {
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        items(state.characters.size) { index ->
-                            val character = state.characters[index]
+                    // lista con datos
+                    else -> {
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            items(state.characters.size) { index ->
+                                val character = state.characters[index]
 
-                            LaunchedEffect(index) {
-                                if (index == state.characters.size - 1 && !state.endReached && !state.isLoadingNextPage) {
-                                    viewModel.loadNextPage()
+                                LaunchedEffect(index) {
+                                    if (index == state.characters.size - 1 && !state.endReached && !state.isLoadingNextPage) {
+                                        viewModel.loadNextPage()
+                                    }
                                 }
+
+                                CharacterListItem(
+                                    character = character,
+                                    onClick = { onNavigateToDetail(character.id) }
+                                )
                             }
 
-                            CharacterListItem(
-                                character = character,
-                                onClick = { onNavigateToDetail(character.id) }
-                            )
-                        }
-
-                        // spinner de carga al final de la lista
-                        if (state.isLoadingNextPage) {
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(120.dp)
-                                        .padding(16.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
-                            }
-                        }
-
-                        // error de carga (final de lista)
-                        if (state.error != null && state.characters.isNotEmpty()) {
-                            item {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(120.dp)
-                                        .padding(16.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.Center
-                                ) {
-                                    Text(
-                                        text = state.error ?: "Error",
-                                        color = ErrorColor,
-                                        textAlign = TextAlign.Center
-                                    )
-                                    Button(
-                                        onClick = { viewModel.loadNextPage() },
-                                        modifier = Modifier.padding(top = 8.dp)
+                            // spinner de carga al final de la lista
+                            if (state.isLoadingNextPage) {
+                                item {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(120.dp)
+                                            .padding(16.dp),
+                                        contentAlignment = Alignment.Center
                                     ) {
-                                        Text("Reintentar")
+                                        CircularProgressIndicator()
+                                    }
+                                }
+                            }
+
+                            // error de carga (final de lista)
+                            if (state.error != null && state.characters.isNotEmpty()) {
+                                item {
+                                    Column(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(120.dp)
+                                            .padding(16.dp),
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        verticalArrangement = Arrangement.Center
+                                    ) {
+                                        Text(
+                                            text = state.error ?: "Error",
+                                            color = ErrorColor,
+                                            textAlign = TextAlign.Center
+                                        )
+                                        Button(
+                                            onClick = { viewModel.loadNextPage() },
+                                            modifier = Modifier.padding(top = 8.dp)
+                                        ) {
+                                            Text("Reintentar")
+                                        }
                                     }
                                 }
                             }
