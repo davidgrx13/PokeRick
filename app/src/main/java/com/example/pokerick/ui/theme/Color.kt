@@ -2,6 +2,11 @@ package com.example.pokerick.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
+val PrimaryText = Color(0xFF2996A1)
+val PrimaryContainer = Color(0xFFFFFFFF)
+val ErrorColor = Color(0xFFBB2828)
+val OKColor = Color(0xFF5BBB28)
+val KOColor = Color(0xFFBB2828)
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)
 val Pink80 = Color(0xFFEFB8C8)
