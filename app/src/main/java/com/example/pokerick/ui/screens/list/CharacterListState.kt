@@ -8,5 +8,6 @@ data class CharacterListState(
     val isLoadingNextPage: Boolean = false, // spinner de más datos
     val error: String? = null,
     val endReached: Boolean = false, // true si no hay más datos en la api
-    val page: Int = 1
+    val page: Int = 1,
+    val searchQuery: String = ""
 )

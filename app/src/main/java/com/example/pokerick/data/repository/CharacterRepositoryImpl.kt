@@ -10,9 +10,9 @@ import javax.inject.Inject
 
 class CharacterRepositoryImpl @Inject constructor(private val api: RickAndMortyApi) : CharacterRepository {
 
-    override suspend fun getCharacters(page: Int): Result<CharacterPage> {
+    override suspend fun getCharacters(page: Int, name: String?): Result<CharacterPage> {
         return try {
-            val response = api.getCharacters(page)
+            val response = api.getCharacters(page, name)
             Result.success(response.toDomain())
         } catch (e: Exception) {
             Result.failure(e)
