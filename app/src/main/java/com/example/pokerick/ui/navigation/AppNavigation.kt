@@ -8,12 +8,23 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.pokerick.ui.screens.detail.CharacterDetailScreen
 import com.example.pokerick.ui.screens.list.CharacterListScreen
+import com.example.pokerick.ui.screens.splash.SplashScreen
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = "character_list") {
+    NavHost(navController = navController, startDestination = "splash") {
+
+        composable("splash") {
+            SplashScreen(
+                onSplashFinished = {
+                    navController.navigate("character_list") {
+                        popUpTo("splash") { inclusive = true }
+                    }
+                }
+            )
+        }
 
         composable("character_list") {
             CharacterListScreen(
